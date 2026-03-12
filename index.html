@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Abitur BW">
+<meta name="theme-color" content="#111111">
+<title>Abitur Checkliste BW</title>
+<style>
+:root{--bg:#f4f1eb;--card:#fff;--border:#e5e0d8;--text:#1a1a1a;--muted:#888;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none}
+.app-header{position:sticky;top:0;z-index:100;background:#111;color:#fff;padding:calc(var(--safe-top) + 14px) 16px 12px}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.header-label{font-size:11px;opacity:.5;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.header-title{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.header-pct{font-size:28px;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:right}
+.header-pct-label{font-size:11px;opacity:.4;text-align:right}
+.progress-bar-wrap{background:rgba(255,255,255,.1);border-radius:4px;height:4px;overflow:hidden;margin-bottom:12px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#60a5fa,#a78bfa);transition:width .5s ease}
+.subject-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.subject-tabs::-webkit-scrollbar{display:none}
+.subject-tab{flex-shrink:0;padding:8px 14px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+.subject-tab.active{background:#fff;color:#111;font-weight:700}
+.subject-tab.inactive{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.filter-row{display:flex;gap:8px;padding:12px 12px 8px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;align-items:center}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid;cursor:pointer;font-size:13px;font-weight:500;transition:all .18s}
+.filter-btn.active{background:#111;color:#fff;border-color:#111}
+.filter-btn.inactive{background:#fff;color:#555;border-color:#ddd}
+.filter-count{font-size:13px;color:var(--muted);flex-shrink:0}
+.reset-btn{margin-left:auto;flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fff;color:#aaa;font-size:12px;cursor:pointer}
+.content{padding:12px 12px calc(var(--safe-bottom) + 24px)}
+.section-card{background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.04)}
+.section-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-user-select:none}
+.section-label{font-size:10px;opacity:.5;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;color:#fff}
+.section-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3}
+.section-stat{text-align:right}
+.section-pct{font-size:22px;font-weight:800}
+.section-count{font-size:11px;opacity:.55;color:#fff}
+.section-chevron{font-size:11px;color:rgba(255,255,255,.4);transition:transform .25s;display:inline-block}
+.subsection{border-top:1px solid rgba(0,0,0,.06)}
+.subsection-title{padding:8px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-left:3px solid}
+.item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-top:1px solid var(--border);cursor:pointer;-webkit-user-select:none;border-left:3px solid transparent;transition:background .15s}
+.item:active{background:#f5f5f5}
+.item.done{border-left-color:var(--ac)}
+.checkbox{width:24px;height:24px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.checkbox.checked{border-color:var(--ac);background:var(--ac)}
+.checkmark{color:#fff;font-size:14px;font-weight:700}
+.item-text{font-size:14px;line-height:1.55;transition:color .2s}
+.item-text.done{color:#bbb;text-decoration:line-through;text-decoration-color:#ccc}
+.empty{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:16px;font-weight:600}
+.empty-sub{font-size:13px;margin-top:6px;opacity:.7}
+.install-banner{margin:0 0 14px;background:linear-gradient(135deg,#1a2e1a,#2d5a2d);color:#fff;border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.5;display:flex;gap:12px;align-items:flex-start}
+.install-icon{font-size:24px;flex-shrink:0}
+.install-title{font-weight:700;font-size:14px;margin-bottom:4px}
+.install-dismiss{margin-left:auto;font-size:18px;opacity:.6;cursor:pointer;flex-shrink:0;padding:0 4px}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="header-top">
+    <div><div class="header-label">Abitur BW 2026</div><div class="header-title">Lerncheckliste</div></div>
+    <div><div class="header-pct" id="grandPct">0%</div><div class="header-pct-label">gesamt</div></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="grandBar" style="width:0%"></div></div>
+  <div class="subject-tabs" id="subjectTabs"></div>
+</div>
+<div class="filter-row">
+  <button class="filter-btn active" onclick="setFilter('all',this)">Alle</button>
+  <button class="filter-btn inactive" onclick="setFilter('open',this)">Offen</button>
+  <button class="filter-btn inactive" onclick="setFilter('done',this)">Gelernt ✓</button>
+  <span class="filter-count" id="filterCount"></span>
+  <button class="reset-btn" onclick="confirmReset()">Reset</button>
+</div>
+<div class="content" id="mainContent"></div>
+<script>
+const STORAGE_KEY='abitur-bw-2026';
+let checked={},collapsed={},activeSubject='wirtschaft',currentFilter='all';
+try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');checked=s.checked||{};collapsed=s.collapsed||{};}catch{}
+
+const subjects=[
+{id:'wirtschaft',name:'Wirtschaft',emoji:'📊',color:'#111',accent:'#4ade80',
+sections:[
+{id:'oekonomie',title:'3.1.1 Grundlagen der Ökonomie',color:'#1a3a2a',accent:'#2d9e6e',light:'#f0f9f4',subsections:[
+{title:'Ökonomisches Verhalten',items:[
+{id:'o1',text:'Einflussfaktoren auf ökonomisches Verhalten (Präferenzen, Anreize, Restriktionen) anhand Rationalitätshypothese vs. begrenzte Rationalität beschreiben und beurteilen'},
+{id:'o2',text:'Ökonomische Entscheidungen privater Haushalte mit Opportunitätskosten, Einkommen und Grenznutzen analysieren'},
+{id:'o3',text:'Individuelle und gesellschaftliche Dilemmasituationen (Gefangenendilemma, Trittbrettfahrersituation) erklären und bewerten'},
+]},
+{title:'Marktmodell und Preisbildung',items:[
+{id:'o4',text:'Preisbildung auf dem vollkommenen Markt mit Preis-Mengen-Diagramm erklären (Angebot/Nachfrage, Gesamtwohlfahrt, Elastizitäten, Preisfunktionen)'},
+{id:'o5',text:'Ursachen für Marktversagen darstellen (Marktmacht, Externalitäten, Informationsasymmetrien) und Lösungsmöglichkeiten erläutern'},
+]},
+{title:'Ist- und Ziel-Analyse',items:[
+{id:'o6',text:'Wirtschaftliche Lage Deutschlands anhand von Konjunkturindikatoren analysieren'},
+{id:'o7',text:'Soziale Marktwirtschaft mit einer anderen realen Wirtschaftsordnung vergleichen'},
+{id:'o8',text:'Wirtschaftspolitische Zielsetzungen bewerten (Preisniveaustabilität, Wirtschaftswachstum, ökologische Nachhaltigkeit, Art. 20a GG)'},
+]},
+]},
+{id:'bwl',title:'3.1.2 Grundlagen der Betriebswirtschaft',color:'#2d1a4a',accent:'#8e44ad',light:'#f8f2ff',subsections:[
+{title:'Unternehmensanalyse & Strategie',items:[
+{id:'b1',text:'Betriebswirtschaftliche Situation anhand von Kennzahlen aus Bilanz und GuV beschreiben (Liquidität, Rentabilität, Sicherheit, Eigenkapitalquote) sowie SWOT-Analyse'},
+{id:'b2',text:'Einfluss strategischer Entscheidungen auf nachhaltigen Erfolg überprüfen (Ansoff, Porter, Rechtsform, Standort, Make-or-Buy)'},
+{id:'b3',text:'Instrumente des Marketing-Mix erläutern und eine Marketingstrategie beurteilen'},
+{id:'b4',text:'Preispolitische Strategie unter Berücksichtigung der Kostenrechnung erläutern (Deckungsbeitrag, Break-Even-Analyse)'},
+]},
+{title:'Betriebliche Prozesse & Führung',items:[
+{id:'b5',text:'Optimierungsmöglichkeiten betrieblicher Abläufe darstellen (Kaizen, Lean-Production, Just-in-Sequence) und Voraussetzungen für Innovation beschreiben'},
+{id:'b6',text:'Finanzierungsmöglichkeiten (Außen-/Innenfinanzierung) einer Investition vergleichen'},
+{id:'b7',text:'Ziele von Anspruchsgruppen (Stakeholder) mit Unternehmenszielen vergleichen und Zielbeziehungen beschreiben'},
+{id:'b8',text:'Bedeutung der betrieblichen Mitbestimmung (gesetzliche Regelungen) beurteilen'},
+{id:'b9',text:'Wechselwirkungen von Unternehmenskultur (Werte, Normen, Rituale) und Mitarbeiterzufriedenheit darstellen'},
+{id:'b10',text:'Entlohnungsformen aus Arbeitgeber- und Arbeitnehmersicht bewerten'},
+]},
+{title:'Unternehmen & Gesellschaft',items:[
+{id:'b11',text:'Wechselwirkungen zwischen Customer Relationship Management und Konsumentensouveränität (informationelle Selbstbestimmung) erläutern'},
+{id:'b12',text:'Handeln von Unternehmen anhand unternehmensethischer Ansätze überprüfen'},
+{id:'b13',text:'Einfluss von gesellschaftlichem und technologischem Wandel (Digitalisierung) auf unternehmerische Entscheidungen erklären'},
+{id:'b14',text:'Wechselwirkungen zwischen wirtschaftspolitischen Rahmenbedingungen und unternehmerischen Interessen und Entscheidungen beurteilen'},
+{id:'b15',text:'Ökonomische, soziale und ökologische Bedeutung und Verantwortung von Unternehmen für Volkswirtschaften darstellen'},
+]},
+]},
+{id:'gueter',title:'3.1.3 Globale Gütermärkte',color:'#1a3320',accent:'#27ae60',light:'#eef9f1',subsections:[
+{title:'Globaler Handel & Konsum',items:[
+{id:'g1',text:'Globales Konsumverhalten analysieren (Theorie der globalen Homogenisierung, Kreolisierungsthese)'},
+{id:'g2',text:'Gründe für die Internationalisierung von Unternehmen beschreiben und eine Wertschöpfungskette darstellen'},
+{id:'g3',text:'Gründe für internationalen Handel mit Theorien erklären (eine klassische und eine moderne Außenhandelstheorie) und deren Aussagekraft beurteilen'},
+{id:'g4',text:'Internationalen Handel anhand von Leistungsbilanzen analysieren'},
+{id:'g5',text:'Formen von „Fairem Handel" beschreiben und dessen Auswirkungen auf verschiedene Akteure erörtern'},
+]},
+{title:'Marktstrukturen & Ordnungspolitik',items:[
+{id:'g6',text:'Bedeutung Transnationaler Unternehmen auf globalen Märkten erläutern (Marktformen, Marktmacht, Innovationsanreiz)'},
+{id:'g7',text:'Chancen und Risiken von Regionalisierung erörtern (EU-Binnenmarkt, Freihandelsabkommen)'},
+{id:'g8',text:'Möglichkeiten und Grenzen internationaler Ordnungspolitik beurteilen (Neue Welthandelsordnung, WTO, NGOs)'},
+{id:'g9',text:'Wirkung eines internationalen Umwelt- oder Sozialabkommens auf verschiedene Akteure analysieren (Paris-Abkommen, ILO-Regelwerk)'},
+]},
+]},
+{id:'arbeit',title:'3.1.4 Arbeitsmärkte',color:'#3a2800',accent:'#e67e22',light:'#fff8ee',subsections:[
+{title:'Arbeit & Arbeitslosigkeit',items:[
+{id:'a1',text:'Individuellen und gesellschaftlichen Stellenwert der Arbeit bewerten (Arbeitsgesellschaft, Tätigkeitsgesellschaft)'},
+{id:'a2',text:'Individuelle Ursachen für Arbeitslosigkeit herausarbeiten und Konsequenzen für die eigene Erwerbsbiografie erörtern'},
+{id:'a3',text:'Individuelle, soziale und wirtschaftliche Folgen von Arbeitslosigkeit für den Einzelnen erklären'},
+{id:'a4',text:'Unterschiedliche Interessen von Anbietern und Nachfragern auf dem Arbeitsmarkt darstellen'},
+{id:'a5',text:'Erklärungsansätze für Arbeitslosigkeit erläutern (Mismatch-, konjunkturelle und strukturelle Arbeitslosigkeit)'},
+{id:'a6',text:'Folgen der Arbeitslosigkeit für Staat und Gesellschaft erläutern und hohen Beschäftigungsstand als wirtschaftspolitische Zielsetzung begründen'},
+]},
+{title:'Arbeitsmarktpolitik',items:[
+{id:'a7',text:'Staatliche Rahmenbedingungen darstellen (Tarifautonomie, Arbeitsrecht, Transferleistungen, Zeitarbeit, Niedriglohnsektor, Mindestlöhne)'},
+{id:'a8',text:'Angebots- und nachfrageorientierte sowie arbeitsmarktpolitische Maßnahmen zur Förderung der Beschäftigung bewerten'},
+{id:'a9',text:'Folgen des freien Personenverkehrs auf dem EU-Arbeitsmarkt erörtern'},
+{id:'a10',text:'Arbeitsmarkt eines ausgewählten Landes beschreiben und mit dem deutschen Arbeitsmarkt vergleichen'},
+]},
+]},
+{id:'finanz',title:'3.1.5 Internationale Finanzmärkte',color:'#0f2035',accent:'#2980b9',light:'#eef5fb',subsections:[
+{title:'Finanzmärkte & Akteure',items:[
+{id:'f1',text:'Motive von Akteuren (Verhaltensökonomik) auf Finanzmärkten erläutern (Geld-, Kapital-, Devisenmärkte) und Anlageformen darstellen (Anleihen, Devisen, Derivate)'},
+{id:'f2',text:'Funktionen der Finanzmärkte für Volkswirtschaften erklären'},
+{id:'f3',text:'Funktionsmechanismen von Devisenmärkten in unterschiedlichen Wechselkurssystemen erklären (feste und flexible Wechselkurse, Auf- und Abwertung)'},
+{id:'f4',text:'Ursachen von Fehlallokationen und Instabilitäten auf Finanzmärkten erläutern (Deregulierung, Staatsanleihen-Ausfall, Intransparenz, Fehlbewertungen)'},
+]},
+{title:'Währungsunion & Stabilisierung',items:[
+{id:'f5',text:'Wechselwirkungen zwischen Finanzmarkt und Güter-/Arbeitsmarkt erläutern (Auf-/Abwertungen, Zinsniveauänderungen, Börsencrashs, Leistungsbilanzdefizit)'},
+{id:'f6',text:'Ziele und Anforderungen einer Währungsunion am Beispiel des Euro charakterisieren und Heterogenität nationaler Volkswirtschaften als Herausforderung erklären'},
+{id:'f7',text:'Bedeutung geldpolitischer Instrumente der EZB für die Stabilität des Währungsraums analysieren'},
+{id:'f8',text:'Institutionelle Maßnahmen zur Stabilisierung von Finanzmärkten beurteilen (Eigenkapitalanforderungen, Bankenabgabe, Finanztransaktionssteuer, IWF)'},
+]},
+]},
+{id:'fallstudie',title:'3.1.6 Fallstudie',color:'#3a1515',accent:'#c0392b',light:'#fef0ee',subsections:[
+{title:'Komplexe ökonomische Analyse',items:[
+{id:'fs1',text:'Anhand eines aktuellen ökonomischen Falls Interdependenzen zwischen mindestens zwei globalen Märkten darstellen, Auswirkungen auf Akteure beurteilen und Szenarien beschreiben'},
+{id:'fs2',text:'Möglichkeiten von Staaten und/oder internationalen Organisationen zur Problemlösung erörtern und eigene Vorschläge gestalten'},
+{id:'fs3',text:'Reale Problemlösungen bzw. Lösungsvorschläge im untersuchten Fall mit dem eigenen Vorschlag vergleichen und bewerten'},
+]},
+]},
+{id:'kompetenzen',title:'Prozessbezogene Kompetenzen',color:'#1a1a35',accent:'#6c5ce7',light:'#f2f0ff',subsections:[
+{title:'Analysekompetenz (2.1)',items:[
+{id:'pk1',text:'Individuelles ökonomisches Verhalten analysieren und Kategorien einordnen (Knappheit, Nutzen, Präferenzen, Anreize)'},
+{id:'pk2',text:'Ökonomische Phänomene erkennen und selbstständig Fragen zu Ursachen und Ergebnissen entwickeln'},
+{id:'pk3',text:'Modellhaftes Denken anwenden (Marktmodell, Verhaltensmodell) und Verhältnis Modell/Wirklichkeit reflektieren'},
+]},
+{title:'Urteilskompetenz (2.2)',items:[
+{id:'pk4',text:'Ökonomisches Handeln kriterienorientiert beurteilen (Effektivität, Effizienz, Gerechtigkeit, Nachhaltigkeit, Solidarität)'},
+{id:'pk5',text:'Interessenkonstellationen zwischen ökonomisch Handelnden beurteilen'},
+{id:'pk6',text:'Politische Entscheidungen unter ökonomischen und gesellschaftlichen Wertmaßstäben bewerten'},
+]},
+{title:'Handlungs- & Methodenkompetenz (2.3/2.4)',items:[
+{id:'pk7',text:'Langfristige Folgen ökonomischen Verhaltens auf andere Akteure unter Nachhaltigkeitsaspekten beurteilen'},
+{id:'pk8',text:'Problemlösungsmethoden anwenden (SWOT, Szenariotechnik, Vernetzungsdiagramm)'},
+{id:'pk9',text:'Ökonomische Sachverhalte grafisch darstellen und auswerten (Preis-Mengen-Diagramm, Wirtschaftskreislauf)'},
+{id:'pk10',text:'Informationen aus Rechtstexten herausarbeiten (GG, BGB) und Quellen kritisch beurteilen'},
+]},
+]},
+]},
+{id:'mathe',name:'Mathematik',emoji:'∫',color:'#0f1f35',accent:'#60a5fa',
+sections:[
+{id:'m_zahl',title:'3.4.1 Leitidee Zahl – Variable – Operation',color:'#0f1f35',accent:'#3b82f6',light:'#eff6ff',subsections:[
+{title:'Zahlenwerte approximieren',items:[
+{id:'m1',text:'Die eulersche Zahl e näherungsweise bestimmen'},
+{id:'m2',text:'Ein iteratives Verfahren zur näherungsweisen Bestimmung von Nullstellen begründen und durchführen'},
+]},
+{title:'Weitere Ableitungsregeln anwenden',items:[
+{id:'m3',text:'Die Produkt- und Kettenregel zum Ableiten von Funktionstermen verwenden'},
+{id:'m4',text:'Gebrochenrationale Funktionen durch Verbindung der Ableitungsregeln in einfachen Fällen ableiten'},
+]},
+{title:'Integrationsregeln verwenden',items:[
+{id:'m5',text:'Die Potenzregel, Regel für konstanten Faktor, Summenregel sowie lineare Substitution für die Bestimmung einer Stammfunktion verwenden'},
+{id:'m6',text:'Stammfunktionsterme zu gegebenen Funktionstermen angeben'},
+{id:'m7',text:'Den Hauptsatz der Differential- und Integralrechnung zur Berechnung von bestimmten Integralen nutzen'},
+{id:'m8',text:'Uneigentliche Integrale untersuchen'},
+]},
+{title:'Produkte von Vektoren bilden',items:[
+{id:'m9',text:'Das Skalarprodukt berechnen, geometrisch interpretieren und bei Berechnungen nutzen'},
+{id:'m10',text:'Das Vektorprodukt berechnen, geometrisch interpretieren und bei Berechnungen nutzen'},
+]},
+{title:'Gauß-Algorithmus verwenden',items:[
+{id:'m11',text:'Das Gaußverfahren zum Lösen eines linearen Gleichungssystems als algorithmisches Verfahren erläutern'},
+{id:'m12',text:'Das Gaußverfahren, auch in Matrixschreibweise, zum Lösen eines linearen Gleichungssystems durchführen'},
+{id:'m13',text:'Die Lösungsmenge eines linearen 3×3-Gleichungssystems geometrisch interpretieren'},
+]},
+]},
+{id:'m_messen',title:'3.4.2 Leitidee Messen',color:'#1a2a1a',accent:'#22c55e',light:'#f0fdf4',subsections:[
+{title:'Winkelweiten, Abstände und Flächeninhalte berechnen',items:[
+{id:'mm1',text:'Die Orthogonalität zweier Vektoren mithilfe des Skalarprodukts überprüfen'},
+{id:'mm2',text:'Winkelweiten mithilfe des Skalarprodukts bestimmen'},
+{id:'mm3',text:'Schnittwinkel zwischen geometrischen Objekten (Geraden und Ebenen) bestimmen'},
+{id:'mm4',text:"Die Hesse'sche Normalenform einer Ebenengleichung zur Berechnung des Abstands eines Punktes zu einer Ebene anwenden"},
+{id:'mm5',text:'Abstände zwischen geometrischen Objekten Punkt, Gerade und Ebene (auch zwischen windschiefen Geraden) ermitteln'},
+{id:'mm6',text:'Das Vektorprodukt zum Ermitteln von Flächeninhalten anwenden'},
+]},
+{title:'Das Integral nutzen',items:[
+{id:'mm7',text:'Das bestimmte Integral als Grenzwert einer Summe erläutern und geometrisch deuten'},
+{id:'mm8',text:'Den Mittelwert einer Funktion auf einem Intervall berechnen'},
+{id:'mm9',text:'Flächeninhalte zwischen Graph und x-Achse und zwischen zwei Graphen bestimmen'},
+{id:'mm10',text:'Das Volumen von Körpern berechnen, die durch Rotation von Flächen um die x-Achse entstehen'},
+]},
+]},
+{id:'m_raum',title:'3.4.3 Leitidee Raum und Form',color:'#2a1a0f',accent:'#f97316',light:'#fff7ed',subsections:[
+{title:'Produkte von Vektoren geometrisch nutzen',items:[
+{id:'mr1',text:'Das Skalarprodukt und das Vektorprodukt geometrisch deuten'},
+{id:'mr2',text:'Einen gemeinsamen orthogonalen Vektor zu zwei Vektoren bestimmen'},
+]},
+{title:'Vektorielle Darstellungen verwenden',items:[
+{id:'mr3',text:'Ebenen mithilfe von Spurpunkten und Spurgeraden im Schrägbild eines Koordinatensystems veranschaulichen'},
+{id:'mr4',text:'Ebenen mithilfe einer Parameterdarstellung, einer Koordinatengleichung und einer Normalengleichung analytisch beschreiben'},
+{id:'mr5',text:'Eine Parameterdarstellung einer Ebene in eine Normalengleichung und in eine Koordinatengleichung umrechnen'},
+{id:'mr6',text:'Zwischen Gerade–Ebene und Ebene–Ebene die Lagebeziehung untersuchen sowie ggf. die Schnittgebilde rechnerisch bestimmen'},
+{id:'mr7',text:'Problemstellungen im Raum bearbeiten (z.B. Spiegelung eines Punktes an einer Ebene, Flächeninhalts- und Volumenberechnungen, geradlinige Bewegungen)'},
+]},
+{title:'Vektorielle Darstellungen beim Beweisen nutzen',items:[
+{id:'mr8',text:'Einfache mathematische Aussagen und Sätze beweisen (z.B. Mittellinie im Trapez, Seitenmitten-Parallelogramm, Diagonalen in der Raute, Satz des Thales)'},
+]},
+]},
+{id:'m_funk',title:'3.4.4 Leitidee Funktionaler Zusammenhang',color:'#1f0f35',accent:'#a855f7',light:'#faf5ff',subsections:[
+{title:'Mit der natürlichen Exponential- und Logarithmusfunktion umgehen',items:[
+{id:'mf1',text:'Die besondere Bedeutung der Basis e bei Exponentialfunktionen erläutern'},
+{id:'mf2',text:'Die Graphen der natürlichen Exponential- und Logarithmusfunktion unter Verwendung charakteristischer Eigenschaften skizzieren und die Beziehung zwischen den Graphen beschreiben'},
+{id:'mf3',text:'Charakteristische Eigenschaften der Funktion f(x) = eˣ beschreiben'},
+{id:'mf4',text:'Die Ableitungsfunktion und eine Stammfunktion der Funktion f(x) = e⁻ˣ angeben'},
+{id:'mf5',text:'Die Ableitungsfunktion der Funktion f(x) = ln(x) angeben'},
+]},
+{title:'Mit zusammengesetzten Funktionen umgehen',items:[
+{id:'mf6',text:'Funktionen verketten und Verkettungen von Funktionen erkennen'},
+{id:'mf7',text:'Graphen von Funktionen auf waagrechte und senkrechte Asymptoten und Nullstellen untersuchen (Quotient zuvor behandelter Funktionstypen)'},
+{id:'mf8',text:'Graphen von zusammengesetzten Funktionen (Summe, Produkt, Verkettung) untersuchen'},
+]},
+{title:'Differentialrechnung anwenden',items:[
+{id:'mf9',text:'Extremwertprobleme mit Nebenbedingungen lösen'},
+{id:'mf10',text:'Einen Funktionsterm zu gegebenen Eigenschaften eines Graphen ermitteln'},
+{id:'mf11',text:'Bei Funktionenscharen Fragestellungen zu Eigenschaften oder Zusammenhängen zwischen Graphen untersuchen'},
+]},
+{title:'Die Grundidee der Integralrechnung verstehen',items:[
+{id:'mf12',text:'Den Wert des bestimmten Integrals als orientierten Flächeninhalt und als Bestandsveränderung erklären'},
+{id:'mf13',text:'Funktionen aus ihren Änderungsraten rekonstruieren'},
+{id:'mf14',text:'Den Bestand aus Anfangsbestand und Änderungsraten bestimmen'},
+{id:'mf15',text:'Den Inhalt des Hauptsatzes der Differential- und Integralrechnung angeben'},
+{id:'mf16',text:'Die Begriffe Integralfunktion und Stammfunktion gegeneinander abgrenzen'},
+{id:'mf17',text:'Vom Graphen der Funktion auf den Graphen einer Stammfunktion schließen und umgekehrt'},
+{id:'mf18',text:'Den Hauptsatz der Differential- und Integralrechnung in Begründungszusammenhängen nutzen (z.B. Nachweis der Linearität des Integrals)'},
+{id:'mf19',text:'Die Linearität des Integrals anschaulich begründen und rechenökonomisch nutzen'},
+]},
+]},
+{id:'m_daten',title:'3.4.5 Leitidee Daten und Zufall',color:'#1a1a0f',accent:'#eab308',light:'#fefce8',subsections:[
+{title:'Hypothesen bei binomialverteilten Zufallsgrößen testen',items:[
+{id:'md1',text:'Das Argumentationsmuster erläutern, das dem Testen von Hypothesen zugrunde liegt'},
+{id:'md2',text:'Eine Nullhypothese so formulieren, dass sie der Zielsetzung des Tests entspricht'},
+{id:'md3',text:'Ablehnungsbereich und Irrtumswahrscheinlichkeit an einem Histogramm erläutern'},
+{id:'md4',text:'Ein- und zweiseitige Hypothesentests durchführen und den Ablehnungsbereich, die Entscheidungsregel und die Irrtumswahrscheinlichkeit angeben'},
+{id:'md5',text:'Signifikanzniveau und Irrtumswahrscheinlichkeit gegeneinander abgrenzen'},
+{id:'md6',text:'Fehler erster und zweiter Art im Kontext eines Hypothesentests erläutern'},
+{id:'md7',text:'Den Einfluss des Stichprobenumfangs auf die Wahrscheinlichkeiten für Fehler erster und zweiter Art angeben'},
+]},
+{title:'Mit Normalverteilungen umgehen',items:[
+{id:'md8',text:'Den Unterschied zwischen diskreten und stetigen Zufallsgrößen erläutern'},
+{id:'md9',text:'Die Dichtefunktion einer normalverteilten Zufallsgröße mithilfe von Erwartungswert und Standardabweichung angeben und die zugehörige Glockenkurve skizzieren'},
+{id:'md10',text:'Stochastische Situationen untersuchen, die zu annähernd normalverteilten Zufallsgrößen gehören, und Wahrscheinlichkeiten berechnen'},
+]},
+]},
+]},
+];
+
+function allItems(subj){return subj.sections.flatMap(s=>s.subsections.flatMap(ss=>ss.items));}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({checked,collapsed}));}catch{}}
+
+function updateGrandHeader(){
+  const all=subjects.flatMap(s=>allItems(s));
+  const done=all.filter(i=>checked[i.id]).length;
+  const pct=Math.round(done/all.length*100);
+  document.getElementById('grandPct').textContent=pct+'%';
+  document.getElementById('grandBar').style.width=pct+'%';
+}
+
+function renderTabs(){
+  const tabs=document.getElementById('subjectTabs');
+  tabs.innerHTML=subjects.map(s=>{
+    const items=allItems(s);
+    const done=items.filter(i=>checked[i.id]).length;
+    const pct=Math.round(done/items.length*100);
+    const active=s.id===activeSubject;
+    return `<button class="subject-tab ${active?'active':'inactive'}" onclick="switchSubject('${s.id}')">${s.emoji} ${s.name} <span style="opacity:.6;font-size:11px">${pct}%</span></button>`;
+  }).join('');
+}
+
+function switchSubject(id){activeSubject=id;currentFilter='all';document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.className='filter-btn '+(i===0?'active':'inactive');});render();}
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.className='filter-btn inactive');btn.className='filter-btn active';render();}
+function confirmReset(){if(confirm('Alle Häkchen zurücksetzen?')){checked={};save();render();}}
+
+function toggleItem(id,accent){
+  checked[id]=!checked[id];save();
+  const el=document.getElementById('item-'+id);
+  const cb=document.getElementById('cb-'+id);
+  const txt=document.getElementById('txt-'+id);
+  if(el){el.className='item'+(checked[id]?' done':'');el.style.setProperty('--ac',accent);}
+  if(cb){cb.className='checkbox'+(checked[id]?' checked':'');}
+  if(txt){txt.className='item-text'+(checked[id]?' done':'');}
+  updateGrandHeader();renderTabs();
+  if(currentFilter!=='all')setTimeout(render,300);
+}
+
+function toggleSection(id){collapsed[id]=!collapsed[id];save();render();}
+
+function render(){
+  const subj=subjects.find(s=>s.id===activeSubject);
+  const items=allItems(subj);
+  const visItems=items.filter(i=>currentFilter==='all'?true:currentFilter==='open'?!checked[i.id]:!!checked[i.id]);
+  document.getElementById('filterCount').textContent=visItems.length+' von '+items.length;
+
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone;
+  let html='';
+  if(isIOS&&!isStandalone&&!sessionStorage.getItem('banner-dismissed')){
+    html+=`<div class="install-banner"><div class="install-icon">📲</div><div><div class="install-title">Als App installieren</div><div>Tippe auf <strong>Teilen</strong> → <strong>Zum Home-Bildschirm</strong></div></div><div class="install-dismiss" onclick="this.closest('.install-banner').remove();sessionStorage.setItem('banner-dismissed','1')">✕</div></div>`;
+  }
+
+  let anyVisible=false;
+  subj.sections.forEach(sec=>{
+    const secItems=sec.subsections.flatMap(ss=>ss.items);
+    const visSecItems=secItems.filter(i=>currentFilter==='all'?true:currentFilter==='open'?!checked[i.id]:!!checked[i.id]);
+    if(visSecItems.length===0)return;
+    anyVisible=true;
+    const secDone=secItems.filter(i=>checked[i.id]).length;
+    const secPct=Math.round(secDone/secItems.length*100);
+    const isCollapsed=collapsed[sec.id];
+    const pctColor=secPct===100?'#4ade80':sec.accent;
+    html+=`<div class="section-card"><div class="section-header" style="background:${sec.color}" onclick="toggleSection('${sec.id}')"><div><div class="section-label">Themenbereich</div><div class="section-title">${sec.title}</div></div><div class="section-stat"><div class="section-pct" style="color:${pctColor}">${secPct}%</div><div class="section-count">${secDone}/${secItems.length}</div><div class="section-chevron" style="transform:${isCollapsed?'rotate(0deg)':'rotate(180deg)'}">▼</div></div></div>`;
+    if(!isCollapsed){
+      sec.subsections.forEach(sub=>{
+        const subVis=sub.items.filter(i=>currentFilter==='all'?true:currentFilter==='open'?!checked[i.id]:!!checked[i.id]);
+        if(subVis.length===0)return;
+        html+=`<div class="subsection"><div class="subsection-title" style="color:${sec.color};background:${sec.light};border-color:${sec.accent}">${sub.title}</div>`;
+        subVis.forEach(item=>{
+          const isDone=!!checked[item.id];
+          html+=`<div class="item${isDone?' done':''}" id="item-${item.id}" style="--ac:${sec.accent}" onclick="toggleItem('${item.id}','${sec.accent}')"><div class="checkbox${isDone?' checked':''}" id="cb-${item.id}"></div><div class="item-text${isDone?' done':''}" id="txt-${item.id}">${item.text}</div></div>`;
+        });
+        html+=`</div>`;
+      });
+    }
+    html+=`</div>`;
+  });
+  if(!anyVisible){html+=`<div class="empty"><div class="empty-icon">${currentFilter==='done'?'📭':'🎉'}</div><div class="empty-text">${currentFilter==='done'?'Noch nichts gelernt':'Alles gelernt!'}</div><div class="empty-sub">${currentFilter==='done'?'Fang an abzuhaken!':'Glückwunsch!'}</div></div>`;}
+  document.getElementById('mainContent').innerHTML=html;
+  updateGrandHeader();renderTabs();
+}
+
+render();
+</script>
+</body>
+</html>
